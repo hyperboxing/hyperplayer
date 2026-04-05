@@ -4,6 +4,9 @@ Hyperplayer is a Windows desktop Amiga-MOD player written in C, built around a t
 I made this mainly to use as a base for videocapping playback for demoparty competitions and YouTube videos. I would consider it to be a "Amiga MOD compo player".
 It loads and plays module files, shows live playback state, displays pattern data, exposes sample information, and renders multiple synchronized visualizers in the same UI. The app initializes a default hyperplayer.ini on first start, opens a configurable default folder, and is designed around a fixed 1920×1080 interface layout. If the file hyperplayer.ini is missing, it will create it on start with all the default settings.
 
+**THANKS!**
+Thanks to LokasNT and Fluke73 (RetroGamingMusic) for beta-testing, coming up with new ideas, changes, fixes and such!
+
 **What it does**
 
 Hyperplayer is focused on .MOD playback and browsing. The built-in file browser shows folders plus MOD files, lets you move through drives and directories, and loads a selected module directly into the player. Once a file is loaded, the browser is hidden so the visualizer panel takes over that area instead, but can be opened again by clicking on the "File Browser" text.
