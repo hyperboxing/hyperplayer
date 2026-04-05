@@ -5,6 +5,7 @@ I made this mainly to use as a base for videocapping playback for demoparty comp
 It loads and plays module files, shows live playback state, displays pattern data, exposes sample information, and renders multiple synchronized visualizers in the same UI. The app initializes a default hyperplayer.ini on first start, opens a configurable default folder, and is designed around a fixed 1920×1080 interface layout. If the file hyperplayer.ini is missing, it will create it on start with all the default settings.
 
 **THANKS!**
+
 Thanks to LokasNT and Fluke73 (RetroGamingMusic) for beta-testing, coming up with new ideas, changes, fixes and such!
 
 **What it does**
