@@ -87,5 +87,6 @@ You will obviously have to change the paths.
 
 **http://www.hyperunknown.net**
 
+![Hyperplayer screenshot](screenshots/hyperplayer-screenshot.png)
 
 
