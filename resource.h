@@ -1,0 +1,16 @@
+#ifndef RESOURCE_H
+#define RESOURCE_H
+
+#define IDI_APP_ICON 101
+
+#define IDR_BACKGROUND_PNG       101
+#define IDR_PROTRACKER_TTF       102
+#define IDR_MOUSECURSOR_PNG      103
+
+#define IDR_LIBOPENMPT_DLL       201
+#define IDR_OPENMPT_MPG123_DLL   202
+#define IDR_OPENMPT_OGG_DLL      203
+#define IDR_OPENMPT_VORBIS_DLL   204
+#define IDR_OPENMPT_ZLIB_DLL     205
+
+#endif

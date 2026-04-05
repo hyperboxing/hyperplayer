@@ -1,0 +1,48 @@
+#include "resource.h"
+
+IDI_APP_ICON ICON "icon.ico"
+
+IDR_BACKGROUND_PNG      RCDATA "background.png"
+IDR_PROTRACKER_TTF      RCDATA "protracker.ttf"
+IDR_MOUSECURSOR_PNG     RCDATA "PT-mousecursor.png"
+
+IDR_LIBOPENMPT_DLL      RCDATA "libopenmpt.dll"
+IDR_OPENMPT_MPG123_DLL  RCDATA "openmpt-mpg123.dll"
+IDR_OPENMPT_OGG_DLL     RCDATA "openmpt-ogg.dll"
+IDR_OPENMPT_VORBIS_DLL  RCDATA "openmpt-vorbis.dll"
+IDR_OPENMPT_ZLIB_DLL    RCDATA "openmpt-zlib.dll"
+
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",      "hyperunknown"
+            VALUE "FileDescription",  "Hyperplayer MOD Player"
+            VALUE "FileVersion",      "1.0.0.0"
+            VALUE "InternalName",     "hyperplayer_v1"
+            VALUE "OriginalFilename", "hyperplayer_v1.exe"
+            VALUE "ProductName",      "Hyperplayer"
+            VALUE "ProductVersion",   "1.0.0.0"
+            VALUE "LegalCopyright",   "(C) 2026 hyperunknown"
+            VALUE "Comments",         "ProTracker-style MOD player"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END
