@@ -56,7 +56,6 @@ typedef struct AppState {
     wchar_t iniPath[MAX_PATH];
     wchar_t backgroundPath[MAX_PATH];
     wchar_t fontPath[MAX_PATH];
-    wchar_t runtimeDir[MAX_PATH];
     wchar_t statusText[2048];
 
     wchar_t currentSelectedFile[MAX_PATH];
@@ -77,7 +76,6 @@ typedef struct AppState {
     bool comInitialized;
     bool backgroundLoaded;
     bool privateFontLoaded;
-    bool runtimeDllsReady;
     bool showFileBrowser;
 
     HANDLE privateFontHandle;
@@ -100,8 +98,6 @@ double app_ini_get_double(const AppState *app, const wchar_t *section, const wch
 COLORREF app_ini_get_color(const AppState *app, const wchar_t *section, const wchar_t *key, COLORREF defaultValue);
 
 bool app_load_resource_bytes(WORD resourceId, const void **outData, DWORD *outSize);
-bool app_prepare_runtime_dlls(AppState *app);
-void app_cleanup_runtime_dlls(AppState *app);
 bool app_ensure_default_ini_exists(void);
 
 #endif

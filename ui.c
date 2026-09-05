@@ -416,7 +416,7 @@ void ui_draw(AppState *app, HDC hdc, const RECT *clientRect)
     ui_draw_shadowed_text(
         hdc,
         app->fonts.dir,
-        L"v1.0",
+        L"v1.1",
         1368,
         68,
         COLOR_INFO,

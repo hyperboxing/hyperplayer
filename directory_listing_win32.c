@@ -612,6 +612,74 @@ void directory_listing_shutdown(AppState *app)
     app->directory.selectedIndex = -1;
 }
 
+bool directory_listing_open_module(AppState *app, const wchar_t *path)
+{
+    DirectoryListing *d;
+    wchar_t fullPath[MAX_PATH];
+    wchar_t directory[MAX_PATH];
+    wchar_t *fileName = NULL;
+    DWORD pathLength;
+    DWORD attributes;
+    int i;
+
+    if (!app || !path || path[0] == L'\0') {
+        return false;
+    }
+
+    pathLength = GetFullPathNameW(
+        path,
+        (DWORD)(sizeof(fullPath) / sizeof(fullPath[0])),
+        fullPath,
+        &fileName
+    );
+    if (pathLength == 0 ||
+        pathLength >= (DWORD)(sizeof(fullPath) / sizeof(fullPath[0])) ||
+        !fileName || fileName[0] == L'\0') {
+        app_set_status(app, L"Invalid or too-long module path.");
+        return false;
+    }
+
+    attributes = GetFileAttributesW(fullPath);
+    if (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+        app_set_status(app, L"Could not open file: %ls", fileName);
+        return false;
+    }
+
+    if (!is_mod_filename(fileName)) {
+        app_set_status(app, L"Not a recognized MOD filename: %ls", fileName);
+        return false;
+    }
+
+    get_parent_path(fullPath, directory, sizeof(directory) / sizeof(directory[0]));
+    d = &app->directory;
+    set_current_path(app, directory);
+    d->scroll = 0;
+
+    if (!refresh_listing(app)) {
+        app_set_status(app, L"Could not list module folder: %ls", directory);
+        return false;
+    }
+
+    for (i = 0; i < d->entryCount; ++i) {
+        if (!d->entries[i].isDir &&
+            !d->entries[i].isParent &&
+            _wcsicmp(d->entries[i].fullPath, fullPath) == 0) {
+            if (!select_file(app, i)) {
+                return false;
+            }
+
+            if (i >= visible_rows()) {
+                d->scroll = i - visible_rows() + 1;
+                clamp_scroll(d);
+            }
+            return true;
+        }
+    }
+
+    app_set_status(app, L"Could not find module in its folder: %ls", fileName);
+    return false;
+}
+
 void directory_listing_draw(AppState *app, HDC hdc)
 {
     DirectoryListing *d;

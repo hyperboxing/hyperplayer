@@ -1,3 +1,8 @@
 v1.0 - April 5:th 2026
 Initial release
 
+v1.1 - September 5:th 2026
+Changed replayer to 8bitbubsy's PT2 clone replayer, as it's the most accurate replayer for mods.
+It previously used OpenMPT as replayer... No offense but it's really really bad. It's not accurate, and has filters and other things that makes mods not sound like when they were originally made.
+With this version, everything sounds exactly like the PT2.3d on the Amiga 500.
+Also added support for opening mods automatically if HyperPlayer is associated as the .mod file player in Windows.

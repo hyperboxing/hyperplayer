@@ -181,67 +181,6 @@ static void app_color_to_hex_text(COLORREF color, wchar_t *dst, size_t dstCount)
     dst[dstCount - 1] = L'\0';
 }
 
-static void app_get_exe_name_no_ext(wchar_t *dst, size_t dstCount)
-{
-    wchar_t fullPath[MAX_PATH];
-    const wchar_t *filePart;
-    size_t di = 0;
-    DWORD len;
-
-    if (!dst || dstCount == 0) {
-        return;
-    }
-
-    dst[0] = L'\0';
-
-    len = GetModuleFileNameW(NULL, fullPath, MAX_PATH);
-    if (len == 0 || len >= MAX_PATH) {
-        app_copy_wstr(dst, dstCount, L"hyperplayer");
-        return;
-    }
-
-    fullPath[len] = L'\0';
-    filePart = fullPath;
-
-    for (DWORD i = 0; i < len; ++i) {
-        if (fullPath[i] == L'\\' || fullPath[i] == L'/') {
-            filePart = &fullPath[i + 1];
-        }
-    }
-
-    while (*filePart && *filePart != L'.' && di + 1 < dstCount) {
-        wchar_t ch = *filePart++;
-
-        if ((ch >= L'0' && ch <= L'9') ||
-            (ch >= L'A' && ch <= L'Z') ||
-            (ch >= L'a' && ch <= L'z')) {
-            dst[di++] = ch;
-        } else {
-            dst[di++] = L'_';
-        }
-    }
-
-    if (di == 0) {
-        app_copy_wstr(dst, dstCount, L"hyperplayer");
-        return;
-    }
-
-    dst[di] = L'\0';
-}
-
-static bool app_ensure_directory(const wchar_t *path)
-{
-    if (!path || path[0] == L'\0') {
-        return false;
-    }
-
-    if (CreateDirectoryW(path, NULL)) {
-        return true;
-    }
-
-    return (GetLastError() == ERROR_ALREADY_EXISTS);
-}
-
 static const char g_defaultIniFileContents[] =
     "; \r\n"
     "; Config file for Hyperplayer\r\n"
@@ -419,18 +358,6 @@ static bool app_write_file_bytes(const wchar_t *path, const void *data, DWORD si
 
     CloseHandle(fileHandle);
     return true;
-}
-
-static bool app_write_resource_to_path(WORD resourceId, const wchar_t *path)
-{
-    const void *resourceData = NULL;
-    DWORD resourceSize = 0;
-
-    if (!app_load_resource_bytes(resourceId, &resourceData, &resourceSize)) {
-        return false;
-    }
-
-    return app_write_file_bytes(path, resourceData, resourceSize);
 }
 
 static bool app_file_exists(const wchar_t *path)
@@ -615,97 +542,9 @@ static void app_load_config(AppState *app)
     if (app->config.stereoSeparation < 0) {
         app->config.stereoSeparation = 0;
     }
-    if (app->config.stereoSeparation > 200) {
-        app->config.stereoSeparation = 200;
+    if (app->config.stereoSeparation > 100) {
+        app->config.stereoSeparation = 100;
     }
-}
-
-bool app_prepare_runtime_dlls(AppState *app)
-{
-    static const struct {
-        WORD resourceId;
-        const wchar_t *fileName;
-    } dlls[] = {
-        { IDR_LIBOPENMPT_DLL,      L"libopenmpt.dll" },
-        { IDR_OPENMPT_MPG123_DLL,  L"openmpt-mpg123.dll" },
-        { IDR_OPENMPT_OGG_DLL,     L"openmpt-ogg.dll" },
-        { IDR_OPENMPT_VORBIS_DLL,  L"openmpt-vorbis.dll" },
-        { IDR_OPENMPT_ZLIB_DLL,    L"openmpt-zlib.dll" }
-    };
-    wchar_t tempBase[MAX_PATH];
-    wchar_t exeName[128];
-    DWORD tempLen;
-
-    if (!app) {
-        return false;
-    }
-
-    app->runtimeDir[0] = L'\0';
-    app->runtimeDllsReady = false;
-
-    tempLen = GetTempPathW(MAX_PATH, tempBase);
-    if (tempLen == 0 || tempLen >= MAX_PATH) {
-        return false;
-    }
-
-    app_get_exe_name_no_ext(exeName, sizeof(exeName) / sizeof(exeName[0]));
-
-    _snwprintf(
-        app->runtimeDir,
-        (sizeof(app->runtimeDir) / sizeof(app->runtimeDir[0])) - 1,
-        L"%ls%ls_embedded_%lu",
-        tempBase,
-        exeName,
-        (unsigned long)GetCurrentProcessId()
-    );
-    app->runtimeDir[(sizeof(app->runtimeDir) / sizeof(app->runtimeDir[0])) - 1] = L'\0';
-
-    if (!app_ensure_directory(app->runtimeDir)) {
-        app->runtimeDir[0] = L'\0';
-        return false;
-    }
-
-    for (size_t i = 0; i < (sizeof(dlls) / sizeof(dlls[0])); ++i) {
-        wchar_t dllPath[MAX_PATH];
-
-        app_join_path(dllPath, sizeof(dllPath) / sizeof(dllPath[0]), app->runtimeDir, dlls[i].fileName);
-
-        if (!app_write_resource_to_path(dlls[i].resourceId, dllPath)) {
-            app_cleanup_runtime_dlls(app);
-            return false;
-        }
-    }
-
-    app->runtimeDllsReady = true;
-    return true;
-}
-
-void app_cleanup_runtime_dlls(AppState *app)
-{
-    static const wchar_t *dllNames[] = {
-        L"libopenmpt.dll",
-        L"openmpt-mpg123.dll",
-        L"openmpt-ogg.dll",
-        L"openmpt-vorbis.dll",
-        L"openmpt-zlib.dll"
-    };
-
-    if (!app) {
-        return;
-    }
-
-    if (app->runtimeDir[0] != L'\0') {
-        for (size_t i = 0; i < (sizeof(dllNames) / sizeof(dllNames[0])); ++i) {
-            wchar_t dllPath[MAX_PATH];
-            app_join_path(dllPath, sizeof(dllPath) / sizeof(dllPath[0]), app->runtimeDir, dllNames[i]);
-            DeleteFileW(dllPath);
-        }
-
-        RemoveDirectoryW(app->runtimeDir);
-        app->runtimeDir[0] = L'\0';
-    }
-
-    app->runtimeDllsReady = false;
 }
 
 void app_set_status(AppState *app, const wchar_t *fmt, ...)
@@ -785,9 +624,7 @@ bool app_init(AppState *app)
     app_join_path(app->iniPath, sizeof(app->iniPath) / sizeof(app->iniPath[0]), app->exeDir, L"hyperplayer.ini");
     app_join_path(app->backgroundPath, sizeof(app->backgroundPath) / sizeof(app->backgroundPath[0]), app->exeDir, L"background.png");
     app_join_path(app->fontPath, sizeof(app->fontPath) / sizeof(app->fontPath[0]), app->exeDir, L"protracker.ttf");
-    app->runtimeDir[0] = L'\0';
     app->privateFontHandle = NULL;
-    app->runtimeDllsReady = false;
 
     app->directory.selectedIndex = -1;
     app->currentSelectedFile[0] = L'\0';
@@ -815,7 +652,6 @@ bool app_init(AppState *app)
 
     app_load_config(app);
 
-    app_prepare_runtime_dlls(app);
     assetsOk = ui_load_assets(app);
     player_init(app);
     app_resolve_default_dir(app, defaultDir, sizeof(defaultDir) / sizeof(defaultDir[0]));
@@ -827,7 +663,7 @@ bool app_init(AppState *app)
     }
 
     if (!player_is_available(app)) {
-        app_set_status(app, L"Embedded OpenMPT runtime failed to initialize.");
+        app_set_status(app, L"ProTracker replay engine failed to initialize.");
         return true;
     }
 
@@ -849,8 +685,6 @@ void app_shutdown(AppState *app)
     directory_listing_shutdown(app);
     player_shutdown(app);
     ui_release_assets(app);
-    app_cleanup_runtime_dlls(app);
-
     if (app->comInitialized) {
         CoUninitialize();
         app->comInitialized = false;

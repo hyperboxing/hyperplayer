@@ -12,7 +12,7 @@ Thanks to LokasNT and Fluke73 (RetroGamingMusic) for beta-testing, coming up wit
 
 Hyperplayer is focused on .MOD playback and browsing. The built-in file browser shows folders plus MOD files, lets you move through drives and directories, and loads a selected module directly into the player. Once a file is loaded, the browser is hidden so the visualizer panel takes over that area instead, but can be opened again by clicking on the "File Browser" text.
 The File Browser is listing all "*.mod" files aswell as files starting with "mod." as per the Amiga standard.
-During playback, Hyperplayer keeps separate OpenMPT instances for rendering audio and for UI/state tracking, so it can show song position, pattern/order/row data, sample usage, waveform previews, and visual meters while the song is playing. Audio is rendered at 44.1 kHz through the Windows waveOut API.
+During playback, Hyperplayer uses one ProTracker 2.3D Clone-derived replay state for audio, effects, timing, song position, pattern/order/row data, sample triggers, and channel state. Audio is rendered at 44.1 kHz through the Windows waveOut API.
 
 **Main features**
 
@@ -63,10 +63,10 @@ While playing, use the pattern view, sample list, waveform display, spectrum ana
 **What it uses**
 
 Hyperplayer is built with plain Win32 C and uses:
- * libopenmpt for module decoding, pattern access, metadata, timing, and playback state
+ * ProTracker 2.3D Clone-derived MOD loading, replay, effect processing, Paula emulation, and mixing
  * Windows waveOut for audio output
  * WIC for loading PNG image assets from memory
- * Embedded resources for the background image, ProTracker font, mouse cursor PNG, and OpenMPT runtime files
+ * Embedded resources for the background image, ProTracker font, and mouse cursor PNG
  * COM for WIC-related initialization
  * Double-buffered drawing to reduce flicker during UI updates
 
@@ -85,9 +85,9 @@ VISUALIZER
 
 This makes it possible to change the startup folder, stereo image, text colors, waveform colors, VU colors, analyzer layout, sample highlight behavior, and the behavior of the radial tunnel visualizer without recompiling.
 
-If you want to compile it yourself, here is the line I use to compile, using w64devkit:
-C:\winprog\C\bin\gcc.exe -B C:\winprog\C\bin\ -std=c11 -O2 -Wall -Wextra -municode -mwindows main.c app.c ui.c directory_listing_win32.c action_buttons.c player.c pattern_view.c sample_list.c sample_list_usage_trigger.c sample_display.c spectrumanalyzer.c vumeter.c quadrascope.c tunnelvisualizer.c mousecursor.c urls.c resources.o -o hyperplayer_v1.exe -lgdi32 -lmsimg32 -lole32 -luuid -lwindowscodecs -lwinmm -lshell32 -lm
-You will obviously have to change the paths.
+Run `compile.bat` to build with the local w64devkit GCC toolchain. The build includes the C sources in `pt2play` and does not require an external playback DLL. You will have to change the local toolchain paths if w64devkit is installed elsewhere.
+
+The ProTracker-derived sources are distributed under the BSD 3-clause license in `pt2play/LICENSE.txt`.
 
 **http://www.hyperunknown.net**
 

@@ -34,6 +34,7 @@ static const HighlightBox g_boxes[31] = {
 
 static wchar_t g_lastFile[MAX_PATH];
 static SampleListConfig g_config = { 0 };
+static unsigned int g_lastTriggerSerial[4];
 
 static void reset_highlights(AppState *app)
 {
@@ -44,6 +45,7 @@ static void reset_highlights(AppState *app)
     for (int i = 0; i < 31; ++i) {
         app->sampleHighlightAlpha[i] = 0.0f;
     }
+    memset(g_lastTriggerSerial, 0, sizeof(g_lastTriggerSerial));
 }
 
 static void copy_wstr_local(wchar_t *dst, size_t dstCount, const wchar_t *src)
@@ -187,10 +189,14 @@ void sample_list_usage_trigger_update(AppState *app, double dt)
 
         if (player_get_quadrascope_state(app, channel, &state)) {
             if (state.sampleIndex > 0 && state.sampleIndex <= 31) {
+                if (state.triggerSerial != 0 && state.triggerSerial != g_lastTriggerSerial[channel - 1]) {
+                    activeSamples[state.sampleIndex - 1] = true;
+                }
                 if (state.vu > 0.01f || state.active || state.scopeHold > 0.0) {
                     activeSamples[state.sampleIndex - 1] = true;
                 }
             }
+            g_lastTriggerSerial[channel - 1] = state.triggerSerial;
         }
     }
 

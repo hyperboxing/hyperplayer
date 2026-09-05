@@ -6,12 +6,6 @@ IDR_BACKGROUND_PNG      RCDATA "background.png"
 IDR_PROTRACKER_TTF      RCDATA "protracker.ttf"
 IDR_MOUSECURSOR_PNG     RCDATA "PT-mousecursor.png"
 
-IDR_LIBOPENMPT_DLL      RCDATA "libopenmpt.dll"
-IDR_OPENMPT_MPG123_DLL  RCDATA "openmpt-mpg123.dll"
-IDR_OPENMPT_OGG_DLL     RCDATA "openmpt-ogg.dll"
-IDR_OPENMPT_VORBIS_DLL  RCDATA "openmpt-vorbis.dll"
-IDR_OPENMPT_ZLIB_DLL    RCDATA "openmpt-zlib.dll"
-
 1 VERSIONINFO
 FILEVERSION 1,0,0,0
 PRODUCTVERSION 1,0,0,0

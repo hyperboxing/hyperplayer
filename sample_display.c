@@ -19,6 +19,29 @@ static const COLORREF COLOR_SHADOW = RGB(0x59, 0x59, 0x59);
 static COLORREF g_colorWaveform = RGB(0xFF, 0xDD, 0x00);
 static bool g_configLoaded = false;
 
+static int sample_value_to_y(float value)
+{
+    int y = (int)(AREA_Y + (AREA_H / 2) - (value * (AREA_H * 0.45f)));
+
+    if (y < AREA_Y) {
+        y = AREA_Y;
+    } else if (y >= AREA_Y + AREA_H) {
+        y = AREA_Y + AREA_H - 1;
+    }
+
+    return y;
+}
+
+static void draw_waveform_line(HDC hdc, int x1, int y1, int x2, int y2)
+{
+    MoveToEx(hdc, x1, y1, NULL);
+    LineTo(hdc, x2, y2);
+
+     
+
+    SetPixelV(hdc, x2, y2, g_colorWaveform);
+}
+
 static void get_ini_path(wchar_t *path, size_t pathCount)
 {
     DWORD len;
@@ -177,14 +200,37 @@ void sample_display_draw(AppState *app, HDC hdc)
 
     for (int i = 0; i < previewCount && i < AREA_W; ++i) {
         int px = AREA_X + i;
-        float minv = preview[i].minValue;
-        float maxv = preview[i].maxValue;
-        int midY = AREA_Y + (AREA_H / 2);
-        int y1 = (int)(midY - (maxv * (AREA_H * 0.45f)));
-        int y2 = (int)(midY - (minv * (AREA_H * 0.45f)));
+        int top = sample_value_to_y(preview[i].maxValue);
+        int bottom = sample_value_to_y(preview[i].minValue);
 
-        MoveToEx(hdc, px, y1, NULL);
-        LineTo(hdc, px, y2);
+        if (top > bottom) {
+            int temp = top;
+            top = bottom;
+            bottom = temp;
+        }
+
+        if (i > 0) {
+            int previousTop = sample_value_to_y(preview[i - 1].maxValue);
+            int previousBottom = sample_value_to_y(preview[i - 1].minValue);
+
+            if (previousTop > previousBottom) {
+                int temp = previousTop;
+                previousTop = previousBottom;
+                previousBottom = temp;
+            }
+
+             
+
+
+            if (bottom > previousTop) {
+                draw_waveform_line(hdc, px - 1, previousTop, px, bottom);
+            }
+            if (top < previousBottom) {
+                draw_waveform_line(hdc, px - 1, previousBottom, px, top);
+            }
+        }
+
+        draw_waveform_line(hdc, px, top, px, bottom);
     }
 
     SelectObject(hdc, oldPen);

@@ -15,6 +15,7 @@
 #include "urls.h"
 
 #include <string.h>
+#include <shellapi.h>
 #include <windowsx.h>
 
 static const wchar_t WINDOW_CLASS_NAME[] = L"HyperplayerStage3WindowClass";
@@ -103,6 +104,29 @@ static bool ensure_selected_loaded(AppState *app)
     }
 
     return player_load_module(app, app->currentSelectedFile, app->currentSelectedName);
+}
+
+static void open_module_from_command_line(AppState *app)
+{
+    LPWSTR *arguments;
+    int argumentCount = 0;
+
+    if (!app) {
+        return;
+    }
+
+    arguments = CommandLineToArgvW(GetCommandLineW(), &argumentCount);
+    if (!arguments) {
+        return;
+    }
+
+    if (argumentCount > 1 && arguments[1][0] != L'\0') {
+        if (directory_listing_open_module(app, arguments[1])) {
+            player_play(app);
+        }
+    }
+
+    LocalFree(arguments);
 }
 
 static void destroy_backbuffer(void)
@@ -293,7 +317,7 @@ static LRESULT CALLBACK window_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
                     return 0;
                 }
 
-                // app_set_status(app, L"Stage 3 click at %d,%d", x, y);
+                
                 InvalidateRect(hwnd, NULL, FALSE);
             }
             return 0;
@@ -483,7 +507,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prevInstance, PWSTR cmdLine, i
     hwnd = CreateWindowExW(
         exStyle,
         WINDOW_CLASS_NAME,
-        L"Hyperplayer v1.0",
+        L"Hyperplayer v1.1",
         style,
         screenX,
         screenY,
@@ -497,6 +521,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prevInstance, PWSTR cmdLine, i
     if (!hwnd) {
         return 1;
     }
+
+    open_module_from_command_line(&app);
 
     {
         HICON hIconBig = (HICON)LoadImageW(

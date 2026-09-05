@@ -18,6 +18,7 @@ typedef struct QuadrascopeState {
     float vu;
     bool active;
     double scopeHold;
+    unsigned int triggerSerial;
 } QuadrascopeState;
 
 bool player_init(AppState *app);
